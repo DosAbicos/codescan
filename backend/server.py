@@ -234,16 +234,10 @@ async def download_excel():
                 if row_idx < len(df):
                     df.iloc[row_idx, 8] = product['barcode']
         
-        # Сохраняем в новый файл
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='xlwt') as writer:
+        # Сохраняем временный файл с использованием openpyxl
+        temp_file = ROOT_DIR / "temp_output.xlsx"
+        with pd.ExcelWriter(temp_file, engine='openpyxl') as writer:
             df.to_excel(writer, index=False, header=False)
-        output.seek(0)
-        
-        # Сохраняем временный файл
-        temp_file = ROOT_DIR / "temp_output.xls"
-        with open(temp_file, 'wb') as f:
-            f.write(output.getvalue())
         
         return FileResponse(
             temp_file,
