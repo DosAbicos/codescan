@@ -33,6 +33,12 @@
           "resizeMode": "contain",
           "backgroundColor": "#000"
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Разрешите доступ к камере для сканирования штрихкодов"
+        }
       ]
     ],
     "experiments": {
