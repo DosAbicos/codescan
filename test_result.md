@@ -170,6 +170,9 @@ backend:
       - working: true
         agent: "main"
         comment: "API PUT /api/products/{id}/barcode tested - successfully assigned barcode 1234567890123 to test product"
+      - working: true
+        agent: "testing"
+        comment: "Barcode assignment working perfectly - Successfully assigned barcode 1234567890123 to product, verified barcode deletion (set to null), proper error handling for invalid product IDs (404 response). Statistics update correctly."
 
   - task: "Download updated Excel file"
     implemented: true
