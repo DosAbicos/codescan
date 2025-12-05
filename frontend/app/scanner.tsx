@@ -728,4 +728,63 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#000',
   },
+  quantityInputOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  quantityInputContainer: {
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 400,
+  },
+  quantityInputTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  quantityProductName: {
+    fontSize: 15,
+    color: '#333',
+    marginBottom: 8,
+  },
+  quantityWarehouse: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 16,
+  },
+  quantityInput: {
+    backgroundColor: '#F2F2F7',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    marginBottom: 16,
+  },
+  quantityInputButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  quantityInputButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  quantityInputButtonCancel: {
+    backgroundColor: '#E5E5EA',
+  },
+  quantityInputButtonSubmit: {
+    backgroundColor: '#007AFF',
+  },
+  quantityInputButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#000',
+  },
 });
