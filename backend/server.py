@@ -64,34 +64,64 @@ def parse_excel_file(file_content: bytes, filename: str):
         
         products = []
         # Начинаем с 8-й строки (индекс 8), где начинаются товары
-        for idx in range(8, len(df)):
+        # Каждый товар занимает 2 строки: данные и количество
+        idx = 8
+        while idx < len(df) - 1:  # -1 чтобы не выйти за пределы при чтении следующей строки
             row = df.iloc[idx]
             name = row.iloc[0]  # Первая колонка - наименование
             
-            # Пропускаем пустые строки и служебные данные
-            if pd.isna(name) or str(name).strip() == '' or name == 'nan':
+            # Пропускаем пустые строки
+            if pd.isna(name) or str(name).strip() == '':
+                idx += 1
                 continue
             
             # Проверяем что это не заголовок или итоговая строка
             name_str = str(name).strip()
-            if name_str in ['НaN', 'Номенклатура', 'Счет'] or name_str.isdigit():
+            if name_str in ['НaN', 'Номенклатура', 'Счет', 'nan']:
+                idx += 1
                 continue
             
-            barcode = row.iloc[8] if len(row) > 8 and pd.notna(row.iloc[8]) else None
-            if barcode:
-                barcode = str(barcode).strip()
-            
-            # Сохраняем всю строку для последующего экспорта
-            original_data = {}
-            for col_idx, value in enumerate(row):
-                original_data[f"col_{col_idx}"] = str(value) if pd.notna(value) else None
-            
-            products.append({
-                "row_index": idx,
-                "name": name_str,
-                "barcode": barcode,
-                "original_data": original_data
-            })
+            # Проверяем что следующая строка содержит "Кол."
+            next_row = df.iloc[idx + 1]
+            if pd.notna(next_row.iloc[1]) and str(next_row.iloc[1]).strip() == 'Кол.':
+                # Это товар с количеством
+                # Извлекаем штрихкод
+                barcode = row.iloc[8] if len(row) > 8 and pd.notna(row.iloc[8]) else None
+                if barcode:
+                    barcode = str(barcode).strip()
+                
+                # Извлекаем количество на складе (Col 2 из строки с "Кол.")
+                quantity_warehouse = None
+                if pd.notna(next_row.iloc[2]):
+                    try:
+                        quantity_warehouse = float(next_row.iloc[2])
+                    except:
+                        pass
+                
+                # Сохраняем всю строку для последующего экспорта
+                original_data = {}
+                for col_idx, value in enumerate(row):
+                    original_data[f"col_{col_idx}"] = str(value) if pd.notna(value) else None
+                
+                # Сохраняем также данные строки с количеством
+                original_data['quantity_row'] = {}
+                for col_idx, value in enumerate(next_row):
+                    original_data['quantity_row'][f"col_{col_idx}"] = str(value) if pd.notna(value) else None
+                
+                products.append({
+                    "row_index": idx,
+                    "name": name_str,
+                    "barcode": barcode,
+                    "quantity_warehouse": quantity_warehouse,
+                    "quantity_actual": None,  # Будет заполнено при сканировании
+                    "original_data": original_data
+                })
+                
+                # Пропускаем следующую строку (с количеством)
+                idx += 2
+            else:
+                # Строка без количества, пропускаем
+                idx += 1
         
         return products
     except Exception as e:
