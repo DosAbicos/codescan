@@ -141,7 +141,10 @@ export default function Scanner() {
           [
             {
               text: 'OK',
-              onPress: () => router.back()
+              onPress: () => {
+                // Используем replace вместо back для избежания проблем с навигацией
+                router.replace('/products');
+              }
             }
           ]
         );
@@ -149,6 +152,7 @@ export default function Scanner() {
         Alert.alert('Ошибка', 'Не удалось обновить штрихкод');
       }
     } catch (error) {
+      console.error('Apply barcode error:', error);
       Alert.alert('Ошибка', 'Не удалось обновить штрихкод');
     }
   };
