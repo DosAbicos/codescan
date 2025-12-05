@@ -203,7 +203,18 @@ async def get_products(has_barcode: Optional[bool] = None, search: Optional[str]
             query["barcode"] = None
     
     if search:
-        query["name"] = {"$regex": search, "$options": "i"}
+        # Экранируем спецсимволы regex и разбиваем по словам для мягкого поиска
+        import re
+        escaped_search = re.escape(search)
+        # Разбиваем на слова и ищем каждое слово
+        words = escaped_search.split()
+        if len(words) > 1:
+            # Если несколько слов - ищем все слова (в любом порядке)
+            patterns = [f"(?=.*{word})" for word in words]
+            query["name"] = {"$regex": "".join(patterns), "$options": "i"}
+        else:
+            # Если одно слово - простой поиск
+            query["name"] = {"$regex": escaped_search, "$options": "i"}
     
     total = await db.products.count_documents(query)
     products = await db.products.find(query).skip(skip).limit(limit).to_list(limit)
