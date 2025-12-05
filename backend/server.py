@@ -33,6 +33,7 @@ api_router = APIRouter(prefix="/api")
 # Define Models
 class Product(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    session_id: str  # ID сессии к которой принадлежит товар
     row_index: int
     name: str
     nomenclature_code: Optional[str] = None  # Код номенклатуры для поиска
