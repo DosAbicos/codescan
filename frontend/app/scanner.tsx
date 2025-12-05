@@ -57,10 +57,25 @@ export default function Scanner() {
       const response = await fetch(
         `${BACKEND_URL}/api/products?has_barcode=false&search=${encodeURIComponent(searchQuery)}&limit=50`
       );
+      
+      if (!response.ok) {
+        console.error('Server error:', response.status);
+        setProducts([]);
+        return;
+      }
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Response is not JSON:', contentType);
+        setProducts([]);
+        return;
+      }
+      
       const data = await response.json();
-      setProducts(data.products);
+      setProducts(data.products || []);
     } catch (error) {
       console.error('Ошибка поиска:', error);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
