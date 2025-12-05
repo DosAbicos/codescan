@@ -266,9 +266,9 @@ async def update_product_barcode(product_id: str, update: ProductUpdate):
 async def download_excel():
     """Выгрузить Excel файл с обновленными штрихкодами и количеством"""
     try:
-        from openpyxl import load_workbook
-        from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
-        from copy import copy
+        import xlrd
+        from xlutils.copy import copy as xl_copy
+        import xlwt
         
         # Получаем сессию
         session = await db.sessions.find_one()
@@ -283,55 +283,41 @@ async def download_excel():
         with open(temp_original, 'wb') as f:
             f.write(original_file)
         
-        # Конвертируем xls в xlsx используя pandas
-        df = pd.read_excel(temp_original, engine='xlrd')
-        temp_xlsx = ROOT_DIR / "temp_converted.xlsx"
-        df.to_excel(temp_xlsx, index=False, header=False, engine='openpyxl')
+        # Открываем оригинальный workbook
+        rb = xlrd.open_workbook(str(temp_original), formatting_info=True)
+        wb = xl_copy(rb)
+        ws = wb.get_sheet(0)
         
-        # Загружаем с openpyxl для сохранения форматирования
-        wb = load_workbook(temp_xlsx)
-        ws = wb.active
-        
-        # Добавляем заголовок для новой колонки "Кол-во по факту" в строке 4 (индекс 4)
-        # Копируем стиль из соседней ячейки
-        if ws.cell(4, 9).value:  # Если колонка 9 (I) имеет значение
-            header_cell = ws.cell(4, 10)
-            source_cell = ws.cell(4, 9)
-            header_cell.value = "Кол-во по факту"
-            # Копируем стиль
-            if source_cell.has_style:
-                header_cell.font = copy(source_cell.font)
-                header_cell.border = copy(source_cell.border)
-                header_cell.fill = copy(source_cell.fill)
-                header_cell.alignment = copy(source_cell.alignment)
+        # Добавляем заголовок "Кол-во по факту" в строку 4, колонку 9 (J)
+        # Строка 3 в xlrd (индекс начинается с 0)
+        ws.write(3, 9, "Кол-во по факту")
         
         # Получаем все обновленные товары
         products = await db.products.find({}).to_list(None)
         
         # Обновляем штрихкоды и количество
         for product in products:
-            row_idx = product['row_index'] + 1  # +1 потому что Excel индексация с 1
+            row_idx = product['row_index']  # Индекс строки в файле
             
-            # Обновляем штрихкод (колонка 9, буква I)
+            # Обновляем штрихкод (колонка 8, буква I в Excel)
             if product.get('barcode'):
-                ws.cell(row_idx, 9).value = product['barcode']
+                ws.write(row_idx, 8, product['barcode'])
             
-            # Добавляем количество по факту (новая колонка 10, буква J)
+            # Добавляем количество по факту (новая колонка 9, буква J в Excel)
             if product.get('quantity_actual') is not None:
-                ws.cell(row_idx, 10).value = product['quantity_actual']
+                ws.write(row_idx, 9, product['quantity_actual'])
         
         # Сохраняем результат
-        output_file = ROOT_DIR / "output_with_barcodes.xlsx"
-        wb.save(output_file)
+        output_file = ROOT_DIR / "output_with_barcodes.xls"
+        wb.save(str(output_file))
         
         # Очищаем временные файлы
         temp_original.unlink(missing_ok=True)
-        temp_xlsx.unlink(missing_ok=True)
         
         return FileResponse(
             output_file,
-            media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            filename=f"updated_{session['filename'].replace('.xls', '.xlsx')}"
+            media_type='application/vnd.ms-excel',
+            filename=f"updated_{session['filename']}"
         )
     
     except Exception as e:
