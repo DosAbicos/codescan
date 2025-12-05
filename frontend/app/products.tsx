@@ -136,7 +136,7 @@ export default function Products() {
               setLoading(true);
               
               // Импортируем необходимые модули
-              const FileSystem = require('expo-file-system');
+              const FileSystem = require('expo-file-system/legacy');
               const Sharing = require('expo-sharing');
               
               // Скачиваем файл
