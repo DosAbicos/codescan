@@ -151,27 +151,60 @@ export default function Products() {
     );
   };
 
+  const handleEditProduct = (product: Product) => {
+    router.push({
+      pathname: '/edit-product',
+      params: { productId: product.id }
+    });
+  };
+
   const renderProduct = ({ item }: { item: Product }) => (
     <View style={styles.productCard}>
       <View style={styles.productInfo}>
         <Text style={styles.productName} numberOfLines={2}>
           {item.name}
         </Text>
+        
         {item.barcode && (
           <View style={styles.barcodeContainer}>
             <Ionicons name="barcode-outline" size={16} color="#007AFF" />
             <Text style={styles.barcodeText}>{item.barcode}</Text>
           </View>
         )}
+        
+        <View style={styles.quantityRow}>
+          {item.quantity_warehouse !== null && (
+            <View style={styles.quantityItem}>
+              <Text style={styles.quantityLabel}>На складе:</Text>
+              <Text style={styles.quantityValue}>{item.quantity_warehouse}</Text>
+            </View>
+          )}
+          {item.quantity_actual !== null && (
+            <View style={styles.quantityItem}>
+              <Text style={styles.quantityLabel}>По факту:</Text>
+              <Text style={[styles.quantityValue, { color: '#34C759' }]}>
+                {item.quantity_actual}
+              </Text>
+            </View>
+          )}
+        </View>
       </View>
       
       {item.barcode && (
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={() => handleDeleteBarcode(item)}
-        >
-          <Ionicons name="trash-outline" size={20} color="#FF3B30" />
-        </TouchableOpacity>
+        <View style={styles.actionButtons}>
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => handleEditProduct(item)}
+          >
+            <Ionicons name="create-outline" size={20} color="#007AFF" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => handleDeleteBarcode(item)}
+          >
+            <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+          </TouchableOpacity>
+        </View>
       )}
     </View>
   );
