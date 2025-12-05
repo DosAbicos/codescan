@@ -36,12 +36,15 @@ class Product(BaseModel):
     row_index: int
     name: str
     barcode: Optional[str] = None
+    quantity_warehouse: Optional[float] = None  # Кол-во на складе (Col 2)
+    quantity_actual: Optional[float] = None  # Кол-во по факту (вводится пользователем)
     original_data: dict  # Вся строка из Excel
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 class ProductUpdate(BaseModel):
     barcode: Optional[str] = None
+    quantity_actual: Optional[float] = None
 
 class WorkSession(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
