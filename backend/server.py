@@ -168,8 +168,9 @@ async def upload_excel(file: UploadFile = File(...)):
         # Сохраняем новую сессию
         await db.sessions.insert_one(session.dict())
         
-        # Сохраняем товары
+        # Сохраняем товары с привязкой к сессии
         for product_data in products:
+            product_data['session_id'] = session.id
             product = Product(**product_data)
             await db.products.insert_one(product.dict())
         
