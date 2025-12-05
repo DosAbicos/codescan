@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { Camera, CameraView, BarcodeScanningResult } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
