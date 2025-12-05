@@ -160,62 +160,57 @@ export default function Scanner() {
     }
   };
 
-  const assignBarcodeToProduct = async (product: Product) => {
-    // Спрашиваем количество товара
-    Alert.prompt(
-      'Укажите количество',
-      `Введите количество товара "${product.name}":\n\nНа складе: ${product.quantity_warehouse || 0}`,
-      [
-        {
-          text: 'Отмена',
-          style: 'cancel'
-        },
-        {
-          text: 'Сохранить',
-          onPress: async (quantityStr) => {
-            try {
-              const quantity_actual = quantityStr ? parseFloat(quantityStr) : null;
-              
-              const response = await fetch(
-                `${BACKEND_URL}/api/products/${product.id}/barcode`,
-                {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ 
-                    barcode: scannedBarcode,
-                    quantity_actual
-                  })
-                }
-              );
+  const assignBarcodeToProduct = (product: Product) => {
+    // Открываем модальное окно для ввода количества
+    setSelectedProduct(product);
+    setQuantityValue(product.quantity_warehouse?.toString() || '');
+    setShowProductSelector(false);
+    setShowQuantityInput(true);
+  };
 
-              if (response.ok) {
-                Alert.alert(
-                  'Успешно!',
-                  `Штрихкод ${scannedBarcode} присвоен товару:\n"${product.name}"\n\nКоличество: ${quantity_actual || 'не указано'}`,
-                  [
-                    {
-                      text: 'OK',
-                      onPress: () => {
-                        setShowProductSelector(false);
-                        setScannedBarcode(null);
-                        setSearchQuery('');
-                        setProducts([]);
-                      }
-                    }
-                  ]
-                );
-              } else {
-                Alert.alert('Ошибка', 'Не удалось присвоить штрихкод');
-              }
-            } catch (error) {
-              Alert.alert('Ошибка', 'Не удалось присвоить штрихкод');
-            }
-          }
+  const confirmBarcodeAssignment = async () => {
+    if (!selectedProduct) return;
+
+    try {
+      const quantity_actual = quantityValue ? parseFloat(quantityValue) : null;
+      
+      const response = await fetch(
+        `${BACKEND_URL}/api/products/${selectedProduct.id}/barcode`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            barcode: scannedBarcode,
+            quantity_actual
+          })
         }
-      ],
-      'plain-text',
-      product.quantity_warehouse?.toString() || ''
-    );
+      );
+
+      if (response.ok) {
+        setShowQuantityInput(false);
+        Alert.alert(
+          'Успешно!',
+          `Штрихкод ${scannedBarcode} присвоен товару:\n"${selectedProduct.name}"\n\nКоличество: ${quantity_actual || 'не указано'}`,
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                setScannedBarcode(null);
+                setSearchQuery('');
+                setProducts([]);
+                setSelectedProduct(null);
+                setQuantityValue('');
+              }
+            }
+          ]
+        );
+      } else {
+        Alert.alert('Ошибка', 'Не удалось присвоить штрихкод');
+      }
+    } catch (error) {
+      console.error('Assign barcode error:', error);
+      Alert.alert('Ошибка', 'Не удалось присвоить штрихкод');
+    }
   };
 
   const renderProduct = ({ item }: { item: Product }) => (
