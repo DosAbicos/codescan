@@ -440,9 +440,34 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontWeight: '500',
   },
+  quantityRow: {
+    flexDirection: 'row',
+    marginTop: 8,
+    gap: 16,
+  },
+  quantityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  quantityLabel: {
+    fontSize: 13,
+    color: '#666',
+    marginRight: 4,
+  },
+  quantityValue: {
+    fontSize: 14,
+    color: '#000',
+    fontWeight: '600',
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  editButton: {
+    padding: 8,
+  },
   deleteButton: {
     padding: 8,
-    marginLeft: 12,
   },
   emptyContainer: {
     alignItems: 'center',
