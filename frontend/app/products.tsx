@@ -141,7 +141,7 @@ export default function Products() {
               
               // Скачиваем файл
               const downloadUrl = `${BACKEND_URL}/api/download`;
-              const fileUri = FileSystem.documentDirectory + 'updated_barcodes.xlsx';
+              const fileUri = FileSystem.documentDirectory + 'updated_barcodes.xls';
               
               const downloadResult = await FileSystem.downloadAsync(
                 downloadUrl,
@@ -153,7 +153,7 @@ export default function Products() {
               
               if (sharingAvailable) {
                 await Sharing.shareAsync(downloadResult.uri, {
-                  mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                  mimeType: 'application/vnd.ms-excel',
                   dialogTitle: 'Сохранить Excel файл'
                 });
                 Alert.alert('Успешно', 'Файл готов к сохранению');
