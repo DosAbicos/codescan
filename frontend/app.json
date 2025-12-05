@@ -39,7 +39,9 @@
         {
           "cameraPermission": "Разрешите доступ к камере для сканирования штрихкодов"
         }
-      ]
+      ],
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
