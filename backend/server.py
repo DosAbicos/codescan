@@ -218,8 +218,11 @@ async def get_products(has_barcode: Optional[bool] = None, search: Optional[str]
         # Экранируем спецсимволы regex для безопасного поиска
         import re
         escaped_search = re.escape(search)
-        # Простой поиск по подстроке
-        query["name"] = {"$regex": escaped_search, "$options": "i"}
+        # Поиск по названию или коду номенклатуры
+        query["$or"] = [
+            {"name": {"$regex": escaped_search, "$options": "i"}},
+            {"nomenclature_code": {"$regex": escaped_search, "$options": "i"}}
+        ]
     
     total = await db.products.count_documents(query)
     products = await db.products.find(query).skip(skip).limit(limit).to_list(limit)
