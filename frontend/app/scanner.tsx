@@ -415,6 +415,61 @@ export default function Scanner() {
           </View>
         </View>
       </Modal>
+
+      {/* Quantity Input Modal */}
+      <Modal
+        visible={showQuantityInput}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowQuantityInput(false)}
+      >
+        <View style={styles.quantityInputOverlay}>
+          <View style={styles.quantityInputContainer}>
+            <Text style={styles.quantityInputTitle}>Укажите количество</Text>
+            
+            {selectedProduct && (
+              <>
+                <Text style={styles.quantityProductName} numberOfLines={2}>
+                  {selectedProduct.name}
+                </Text>
+                <Text style={styles.quantityWarehouse}>
+                  На складе: {selectedProduct.quantity_warehouse || 0}
+                </Text>
+              </>
+            )}
+
+            <TextInput
+              style={styles.quantityInput}
+              placeholder="Введите количество"
+              value={quantityValue}
+              onChangeText={setQuantityValue}
+              keyboardType="numeric"
+              autoFocus
+            />
+
+            <View style={styles.quantityInputButtons}>
+              <TouchableOpacity
+                style={[styles.quantityInputButton, styles.quantityInputButtonCancel]}
+                onPress={() => {
+                  setShowQuantityInput(false);
+                  setShowProductSelector(true);
+                }}
+              >
+                <Text style={styles.quantityInputButtonText}>Отмена</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.quantityInputButton, styles.quantityInputButtonSubmit]}
+                onPress={confirmBarcodeAssignment}
+              >
+                <Text style={[styles.quantityInputButtonText, { color: '#FFF' }]}>
+                  Сохранить
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
