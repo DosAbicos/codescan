@@ -82,14 +82,19 @@ def parse_excel_file(file_content: bytes, filename: str):
                 idx += 1
                 continue
             
-            # Пропускаем строки с кодами номенклатуры (только цифры/пробелы)
-            if name_str.replace(' ', '').isdigit():
-                idx += 1
-                continue
-            
             # Проверяем что следующая строка содержит "Кол."
             next_row = df.iloc[idx + 1]
             if pd.notna(next_row.iloc[1]) and str(next_row.iloc[1]).strip() == 'Кол.':
+                # Проверяем является ли это кодом номенклатуры
+                is_nomenclature_code = name_str.replace(' ', '').isdigit()
+                
+                if is_nomenclature_code:
+                    # Это код номенклатуры - пропускаем но пытаемся привязать к предыдущему товару
+                    if products and not products[-1].get('nomenclature_code'):
+                        products[-1]['nomenclature_code'] = name_str
+                    idx += 2
+                    continue
+                
                 # Это товар с количеством
                 # Извлекаем штрихкод
                 barcode = row.iloc[8] if len(row) > 8 and pd.notna(row.iloc[8]) else None
@@ -117,6 +122,7 @@ def parse_excel_file(file_content: bytes, filename: str):
                 products.append({
                     "row_index": idx,
                     "name": name_str,
+                    "nomenclature_code": None,  # Будет заполнено следующей строкой если есть
                     "barcode": barcode,
                     "quantity_warehouse": quantity_warehouse,
                     "quantity_actual": None,  # Будет заполнено при сканировании
