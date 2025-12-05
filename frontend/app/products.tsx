@@ -21,6 +21,8 @@ interface Product {
   name: string;
   barcode: string | null;
   row_index: number;
+  quantity_warehouse: number | null;
+  quantity_actual: number | null;
 }
 
 export default function Products() {
