@@ -68,7 +68,13 @@ export default function Scanner() {
 
   const handleBarCodeScanned = ({ type, data }: BarcodeScanningResult) => {
     setScannedBarcode(data);
-    setShowProductSelector(true);
+    
+    // Если режим редактирования - сразу применяем штрихкод
+    if (isEditMode) {
+      applyBarcodeToEditProduct(data);
+    } else {
+      setShowProductSelector(true);
+    }
   };
 
   const handleManualBarcodeSubmit = () => {
