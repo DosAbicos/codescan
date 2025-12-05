@@ -77,7 +77,7 @@ def parse_excel_file(file_content: bytes, filename: str):
             
             # Проверяем что это не заголовок или итоговая строка
             name_str = str(name).strip()
-            if name_str in ['НaN', 'Номенклатура', 'Счет', 'nan']:
+            if name_str in ['НaN', 'Номенклатура', 'Счет', 'nan', 'Итого']:
                 idx += 1
                 continue
             
