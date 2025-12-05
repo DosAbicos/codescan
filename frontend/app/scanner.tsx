@@ -79,10 +79,62 @@ export default function Scanner() {
 
   const handleManualBarcodeSubmit = () => {
     if (manualBarcode.trim()) {
-      setScannedBarcode(manualBarcode.trim());
+      const barcode = manualBarcode.trim();
+      setScannedBarcode(barcode);
       setShowManualInput(false);
       setManualBarcode('');
-      setShowProductSelector(true);
+      
+      if (isEditMode) {
+        applyBarcodeToEditProduct(barcode);
+      } else {
+        setShowProductSelector(true);
+      }
+    }
+  };
+
+  const applyBarcodeToEditProduct = async (barcode: string) => {
+    try {
+      // Получаем текущий товар
+      const response = await fetch(
+        `${BACKEND_URL}/api/products?has_barcode=true&limit=1000`
+      );
+      const data = await response.json();
+      const product = data.products.find((p: Product) => p.id === editProductId);
+      
+      if (!product) {
+        Alert.alert('Ошибка', 'Товар не найден');
+        return;
+      }
+
+      // Применяем новый штрихкод
+      const updateResponse = await fetch(
+        `${BACKEND_URL}/api/products/${editProductId}/barcode`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            barcode: barcode,
+            quantity_actual: product.quantity_actual
+          })
+        }
+      );
+
+      if (updateResponse.ok) {
+        Alert.alert(
+          'Штрихкод обновлён!',
+          `Новый штрихкод ${barcode} присвоен товару`,
+          [
+            {
+              text: 'OK',
+              onPress: () => router.back()
+            }
+          ]
+        );
+      } else {
+        Alert.alert('Ошибка', 'Не удалось обновить штрихкод');
+      }
+    } catch (error) {
+      Alert.alert('Ошибка', 'Не удалось обновить штрихкод');
     }
   };
 
