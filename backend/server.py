@@ -288,9 +288,8 @@ async def download_excel():
         wb = xl_copy(rb)
         ws = wb.get_sheet(0)
         
-        # Добавляем заголовок "Кол-во по факту" в строку 4, колонку 9 (J)
-        # Строка 3 в xlrd (индекс начинается с 0)
-        ws.write(3, 9, "Кол-во по факту")
+        # Заголовок "Кол-во пофакту" уже существует в колонке 9
+        # Не нужно его добавлять
         
         # Получаем все обновленные товары
         products = await db.products.find({}).to_list(None)
@@ -303,7 +302,7 @@ async def download_excel():
             if product.get('barcode'):
                 ws.write(row_idx, 8, product['barcode'])
             
-            # Добавляем количество по факту (новая колонка 9, буква J в Excel)
+            # Добавляем количество по факту (колонка 9, буква J в Excel)
             if product.get('quantity_actual') is not None:
                 ws.write(row_idx, 9, product['quantity_actual'])
         
