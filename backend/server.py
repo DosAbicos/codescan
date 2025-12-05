@@ -35,6 +35,7 @@ class Product(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     row_index: int
     name: str
+    nomenclature_code: Optional[str] = None  # Код номенклатуры для поиска
     barcode: Optional[str] = None
     quantity_warehouse: Optional[float] = None  # Кол-во на складе (Col 2)
     quantity_actual: Optional[float] = None  # Кол-во по факту (вводится пользователем)
