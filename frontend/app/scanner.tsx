@@ -27,6 +27,7 @@ interface Product {
 
 export default function Scanner() {
   const router = useRouter();
+  const { editProductId } = useLocalSearchParams();
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scannedBarcode, setScannedBarcode] = useState<string | null>(null);
   const [showProductSelector, setShowProductSelector] = useState(false);
@@ -35,6 +36,7 @@ export default function Scanner() {
   const [loading, setLoading] = useState(false);
   const [manualBarcode, setManualBarcode] = useState('');
   const [showManualInput, setShowManualInput] = useState(false);
+  const isEditMode = !!editProductId;
 
   useEffect(() => {
     (async () => {
