@@ -267,3 +267,38 @@ agent_communication:
       Error handling verified. All endpoints working correctly with proper data validation.
       
       Backend is production-ready. No critical issues found.
+  - agent: "testing"
+    message: |
+      CRITICAL BARCODE ASSIGNMENT TESTING COMPLETED - ALL CRITICAL TESTS PASSED ✅
+      
+      Performed comprehensive testing of critical barcode assignment issues:
+      
+      ✅ SCENARIO 1: Fresh Upload and Export
+      - Successfully uploaded sample_file.xls (3223 products)
+      - Verified clean export with only existing barcodes
+      
+      ✅ SCENARIO 2: IDEAL ПАРКЕТНЫЙ ЛАК ГЛЯНЦЕВЫЙ (10L) Barcode Assignment
+      - Found target product at row_index 8
+      - Assigned barcode "TEST10L" successfully
+      - ✅ VERIFIED: Barcode written to CORRECT ROW (row 9 = row_index + 1)
+      - Product name matches exactly in exported Excel
+      
+      ✅ SCENARIO 3: Multiple Operations (Assign → Delete → Reassign)
+      - Assigned barcode "MULTI123" to Product A
+      - Deleted barcode from Product A
+      - Reassigned same barcode to Product B
+      - ✅ VERIFIED: Only Product B has barcode in export (no old deleted barcodes)
+      
+      ✅ SCENARIO 4: Session Isolation
+      - Created Session 1 with 2 barcodes
+      - Created Session 2 with 1 barcode
+      - ✅ VERIFIED: Only Session 2 barcode appears in export (session isolation working)
+      
+      CRITICAL ISSUES RESOLUTION:
+      ❌ Issue 1 (Old deleted barcodes in export): NOT REPRODUCED - Working correctly
+      ❌ Issue 2 (Wrong row for IDEAL product): NOT REPRODUCED - Working correctly
+      
+      All barcode persistence and Excel export accuracy tests PASSED.
+      Fixed minor test issue: Updated backend_test.py to handle .xls format (OLE2 signature) correctly.
+      
+      BACKEND BARCODE SYSTEM IS FULLY FUNCTIONAL AND PRODUCTION-READY.
