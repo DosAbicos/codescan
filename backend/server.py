@@ -81,6 +81,11 @@ def parse_excel_file(file_content: bytes, filename: str):
                 idx += 1
                 continue
             
+            # Пропускаем строки с кодами номенклатуры (только цифры/пробелы)
+            if name_str.replace(' ', '').isdigit():
+                idx += 1
+                continue
+            
             # Проверяем что следующая строка содержит "Кол."
             next_row = df.iloc[idx + 1]
             if pd.notna(next_row.iloc[1]) and str(next_row.iloc[1]).strip() == 'Кол.':
