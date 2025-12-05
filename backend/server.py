@@ -264,8 +264,12 @@ async def update_product_barcode(product_id: str, update: ProductUpdate):
 
 @api_router.get("/download")
 async def download_excel():
-    """Выгрузить Excel файл с обновленными штрихкодами"""
+    """Выгрузить Excel файл с обновленными штрихкодами и количеством"""
     try:
+        from openpyxl import load_workbook
+        from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
+        from copy import copy
+        
         # Получаем сессию
         session = await db.sessions.find_one()
         if not session:
@@ -274,32 +278,66 @@ async def download_excel():
         # Декодируем оригинальный файл
         original_file = base64.b64decode(session['original_file_base64'])
         
-        # Читаем оригинальный файл
-        df = pd.read_excel(io.BytesIO(original_file), engine='xlrd')
+        # Сохраняем оригинальный файл временно
+        temp_original = ROOT_DIR / "temp_original.xls"
+        with open(temp_original, 'wb') as f:
+            f.write(original_file)
+        
+        # Конвертируем xls в xlsx используя pandas
+        df = pd.read_excel(temp_original, engine='xlrd')
+        temp_xlsx = ROOT_DIR / "temp_converted.xlsx"
+        df.to_excel(temp_xlsx, index=False, header=False, engine='openpyxl')
+        
+        # Загружаем с openpyxl для сохранения форматирования
+        wb = load_workbook(temp_xlsx)
+        ws = wb.active
+        
+        # Добавляем заголовок для новой колонки "Кол-во по факту" в строке 4 (индекс 4)
+        # Копируем стиль из соседней ячейки
+        if ws.cell(4, 9).value:  # Если колонка 9 (I) имеет значение
+            header_cell = ws.cell(4, 10)
+            source_cell = ws.cell(4, 9)
+            header_cell.value = "Кол-во по факту"
+            # Копируем стиль
+            if source_cell.has_style:
+                header_cell.font = copy(source_cell.font)
+                header_cell.border = copy(source_cell.border)
+                header_cell.fill = copy(source_cell.fill)
+                header_cell.alignment = copy(source_cell.alignment)
         
         # Получаем все обновленные товары
         products = await db.products.find({}).to_list(None)
         
-        # Обновляем штрихкоды в DataFrame
+        # Обновляем штрихкоды и количество
         for product in products:
+            row_idx = product['row_index'] + 1  # +1 потому что Excel индексация с 1
+            
+            # Обновляем штрихкод (колонка 9, буква I)
             if product.get('barcode'):
-                row_idx = product['row_index']
-                if row_idx < len(df):
-                    df.iloc[row_idx, 8] = product['barcode']
+                ws.cell(row_idx, 9).value = product['barcode']
+            
+            # Добавляем количество по факту (новая колонка 10, буква J)
+            if product.get('quantity_actual') is not None:
+                ws.cell(row_idx, 10).value = product['quantity_actual']
         
-        # Сохраняем временный файл с использованием openpyxl
-        temp_file = ROOT_DIR / "temp_output.xlsx"
-        with pd.ExcelWriter(temp_file, engine='openpyxl') as writer:
-            df.to_excel(writer, index=False, header=False)
+        # Сохраняем результат
+        output_file = ROOT_DIR / "output_with_barcodes.xlsx"
+        wb.save(output_file)
+        
+        # Очищаем временные файлы
+        temp_original.unlink(missing_ok=True)
+        temp_xlsx.unlink(missing_ok=True)
         
         return FileResponse(
-            temp_file,
-            media_type='application/vnd.ms-excel',
-            filename=f"updated_{session['filename']}"
+            output_file,
+            media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            filename=f"updated_{session['filename'].replace('.xls', '.xlsx')}"
         )
     
     except Exception as e:
         logging.error(f"Download error: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 # Include the router in the main app
