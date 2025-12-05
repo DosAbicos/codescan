@@ -188,6 +188,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "Excel download working perfectly - Generated 468KB .xlsx file with proper Excel format (ZIP signature verified). File contains updated barcodes in correct positions while preserving original data structure."
+      - working: true
+        agent: "testing"
+        comment: "CRITICAL TESTING COMPLETED: All barcode assignment and Excel export accuracy tests passed. Fixed test to handle .xls format correctly. No issues with deleted barcodes appearing in export or wrong row assignments. Session isolation working perfectly."
 
 frontend:
   - task: "Home screen with file upload"
