@@ -296,7 +296,9 @@ async def download_excel():
         
         # Обновляем штрихкоды и количество
         for product in products:
-            row_idx = product['row_index']  # Индекс строки в файле
+            # ВАЖНО: pandas использует 0-based индексацию, но при чтении xlrd
+            # строки смещены на 1, поэтому добавляем +1
+            row_idx = product['row_index'] + 1
             
             # Обновляем штрихкод (колонка 8, буква I в Excel)
             if product.get('barcode'):
