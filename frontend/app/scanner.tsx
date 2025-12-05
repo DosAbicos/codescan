@@ -36,6 +36,9 @@ export default function Scanner() {
   const [loading, setLoading] = useState(false);
   const [manualBarcode, setManualBarcode] = useState('');
   const [showManualInput, setShowManualInput] = useState(false);
+  const [showQuantityInput, setShowQuantityInput] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [quantityValue, setQuantityValue] = useState('');
   const isEditMode = !!editProductId;
 
   useEffect(() => {
