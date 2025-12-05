@@ -225,6 +225,7 @@ async def update_product_barcode(product_id: str, update: ProductUpdate):
     
     update_data = {
         "barcode": update.barcode,
+        "quantity_actual": update.quantity_actual,
         "updated_at": datetime.utcnow()
     }
     
