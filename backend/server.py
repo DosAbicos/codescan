@@ -61,8 +61,8 @@ class WorkSession(BaseModel):
 def parse_excel_file(file_content: bytes, filename: str):
     """Парсинг Excel файла и извлечение товаров"""
     try:
-        # Читаем Excel
-        df = pd.read_excel(io.BytesIO(file_content), engine='xlrd')
+        # Читаем Excel БЕЗ заголовков (header=None) чтобы индексы совпадали с xlrd
+        df = pd.read_excel(io.BytesIO(file_content), engine='xlrd', header=None)
         
         products = []
         # Начинаем с 8-й строки (индекс 8), где начинаются товары
