@@ -133,17 +133,38 @@ export default function Products() {
           text: 'Выгрузить',
           onPress: async () => {
             try {
-              // Открываем URL для скачивания
+              setLoading(true);
+              
+              // Импортируем необходимые модули
+              const FileSystem = require('expo-file-system');
+              const Sharing = require('expo-sharing');
+              
+              // Скачиваем файл
               const downloadUrl = `${BACKEND_URL}/api/download`;
-              Alert.alert(
-                'Готово',
-                'Файл готов к скачиванию. Откройте эту ссылку в браузере:\n\n' + downloadUrl,
-                [
-                  { text: 'OK' }
-                ]
+              const fileUri = FileSystem.documentDirectory + 'updated_barcodes.xlsx';
+              
+              const downloadResult = await FileSystem.downloadAsync(
+                downloadUrl,
+                fileUri
               );
+              
+              // Проверяем доступность sharing
+              const sharingAvailable = await Sharing.isAvailableAsync();
+              
+              if (sharingAvailable) {
+                await Sharing.shareAsync(downloadResult.uri, {
+                  mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                  dialogTitle: 'Сохранить Excel файл'
+                });
+                Alert.alert('Успешно', 'Файл готов к сохранению');
+              } else {
+                Alert.alert('Файл сохранён', `Файл сохранён по пути:\n${downloadResult.uri}`);
+              }
             } catch (error) {
+              console.error('Export error:', error);
               Alert.alert('Ошибка', 'Не удалось выгрузить файл');
+            } finally {
+              setLoading(false);
             }
           }
         }
