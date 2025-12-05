@@ -241,19 +241,24 @@ class BarcodeAPITester:
                     return False
                 
                 # Verify it's a valid Excel file by checking headers
-                if response.content[:2] == b'PK':  # ZIP signature (xlsx files are ZIP archives)
-                    self.log("Downloaded file appears to be a valid Excel file")
-                    
-                    # Save file for verification
+                # Check for both .xls (OLE2) and .xlsx (ZIP) signatures
+                if response.content[:2] == b'PK':  # ZIP signature (xlsx files)
+                    self.log("Downloaded file appears to be a valid .xlsx Excel file")
                     output_path = "/app/test_download.xlsx"
-                    with open(output_path, 'wb') as f:
-                        f.write(response.content)
-                    self.log(f"File saved to {output_path} for verification")
-                    
-                    return True
+                elif response.content[:8] == b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1':  # OLE2 signature (xls files)
+                    self.log("Downloaded file appears to be a valid .xls Excel file")
+                    output_path = "/app/test_download.xls"
                 else:
                     self.log("Downloaded file does not appear to be a valid Excel file", "ERROR")
+                    self.log(f"File signature: {response.content[:10]}")
                     return False
+                
+                # Save file for verification
+                with open(output_path, 'wb') as f:
+                    f.write(response.content)
+                self.log(f"File saved to {output_path} for verification")
+                
+                return True
             else:
                 self.log(f"Download failed with status {response.status_code}: {response.text}", "ERROR")
                 return False
