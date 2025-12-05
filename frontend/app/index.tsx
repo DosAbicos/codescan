@@ -145,7 +145,7 @@ export default function Index() {
           <Text style={styles.subtitle}>Присвоение штрихкодов товарам</Text>
         </View>
 
-        {session && (
+        {session ? (
           <View style={styles.sessionCard}>
             <Text style={styles.sessionTitle}>Текущая сессия</Text>
             <Text style={styles.sessionFilename}>{session.filename}</Text>
@@ -176,28 +176,28 @@ export default function Index() {
               <Ionicons name="arrow-forward" size={20} color="#FFF" />
             </TouchableOpacity>
           </View>
+        ) : (
+          <View style={styles.actionSection}>
+            <Text style={styles.actionTitle}>
+              Загрузите Excel файл для начала
+            </Text>
+            
+            <TouchableOpacity
+              style={[styles.uploadButton, loading && styles.uploadButtonDisabled]}
+              onPress={handleFilePick}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#FFF" />
+              ) : (
+                <>
+                  <Ionicons name="cloud-upload-outline" size={24} color="#FFF" />
+                  <Text style={styles.uploadButtonText}>Выбрать Excel файл</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
         )}
-
-        <View style={styles.actionSection}>
-          <Text style={styles.actionTitle}>
-            {session ? 'Или загрузите новый файл' : 'Загрузите Excel файл для начала'}
-          </Text>
-          
-          <TouchableOpacity
-            style={[styles.uploadButton, loading && styles.uploadButtonDisabled]}
-            onPress={handleFilePick}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#FFF" />
-            ) : (
-              <>
-                <Ionicons name="cloud-upload-outline" size={24} color="#FFF" />
-                <Text style={styles.uploadButtonText}>Выбрать Excel файл</Text>
-              </>
-            )}
-          </TouchableOpacity>
-        </View>
 
         <View style={styles.infoSection}>
           <View style={styles.infoItem}>
