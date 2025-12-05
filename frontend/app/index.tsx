@@ -327,4 +327,15 @@ const styles = StyleSheet.create({
     color: '#666',
     marginLeft: 8,
   },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 80,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#999',
+    marginTop: 16,
+    textAlign: 'center',
+  },
 });
