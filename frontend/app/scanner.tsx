@@ -21,6 +21,8 @@ interface Product {
   id: string;
   name: string;
   barcode: string | null;
+  quantity_warehouse: number | null;
+  quantity_actual: number | null;
 }
 
 export default function Scanner() {
