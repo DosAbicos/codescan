@@ -134,6 +134,7 @@ export default function Products() {
           onPress: async () => {
             try {
               setLoading(true);
+              console.log('Starting export...');
               
               // Импортируем необходимые модули
               const FileSystem = require('expo-file-system/legacy');
@@ -143,26 +144,48 @@ export default function Products() {
               const downloadUrl = `${BACKEND_URL}/api/download`;
               const fileUri = FileSystem.documentDirectory + 'updated_barcodes.xls';
               
+              console.log('Download URL:', downloadUrl);
+              console.log('File URI:', fileUri);
+              
               const downloadResult = await FileSystem.downloadAsync(
                 downloadUrl,
                 fileUri
               );
               
+              console.log('Download result:', downloadResult);
+              
+              // Проверяем что файл скачался
+              if (downloadResult.status !== 200) {
+                throw new Error(`Ошибка скачивания: ${downloadResult.status}`);
+              }
+              
               // Проверяем доступность sharing
               const sharingAvailable = await Sharing.isAvailableAsync();
+              console.log('Sharing available:', sharingAvailable);
               
               if (sharingAvailable) {
                 await Sharing.shareAsync(downloadResult.uri, {
                   mimeType: 'application/vnd.ms-excel',
-                  dialogTitle: 'Сохранить Excel файл'
+                  dialogTitle: 'Сохранить Excel файл',
+                  UTI: 'com.microsoft.excel.xls'
                 });
-                Alert.alert('Успешно', 'Файл готов к сохранению');
+                console.log('Share dialog opened');
               } else {
-                Alert.alert('Файл сохранён', `Файл сохранён по пути:\n${downloadResult.uri}`);
+                // Fallback для случаев когда sharing недоступен
+                Alert.alert(
+                  'Файл сохранён',
+                  `Файл сохранён локально:\n${downloadResult.uri}\n\nВы можете найти его в файловом менеджере.`,
+                  [{ text: 'OK' }]
+                );
               }
             } catch (error) {
               console.error('Export error:', error);
-              Alert.alert('Ошибка', 'Не удалось выгрузить файл');
+              const errorMessage = error instanceof Error ? error.message : 'Не удалось выгрузить файл';
+              Alert.alert(
+                'Ошибка экспорта',
+                `${errorMessage}\n\nПопробуйте ещё раз или обратитесь в поддержку.`,
+                [{ text: 'OK' }]
+              );
             } finally {
               setLoading(false);
             }
