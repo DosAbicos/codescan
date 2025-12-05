@@ -293,8 +293,8 @@ async def download_excel():
         # Заголовок "Кол-во пофакту" уже существует в колонке 9
         # Не нужно его добавлять
         
-        # Получаем все обновленные товары
-        products = await db.products.find({}).to_list(None)
+        # Получаем только товары текущей сессии
+        products = await db.products.find({"session_id": session['id']}).to_list(None)
         
         # Обновляем штрихкоды и количество
         for product in products:
