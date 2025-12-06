@@ -94,6 +94,7 @@ export default function Index() {
       } as any);
 
       // Отправляем на сервер
+      console.log('Отправка файла на:', `${BACKEND_URL}/api/upload`);
       const uploadResponse = await fetch(`${BACKEND_URL}/api/upload`, {
         method: 'POST',
         body: formData,
@@ -102,9 +103,12 @@ export default function Index() {
         },
       });
 
+      console.log('Ответ сервера:', uploadResponse.status);
+      
       if (!uploadResponse.ok) {
         const errorText = await uploadResponse.text();
-        throw new Error(`Ошибка загрузки: ${errorText}`);
+        console.error('Ошибка от сервера:', errorText);
+        throw new Error(`Ошибка загрузки (${uploadResponse.status}): ${errorText}`);
       }
 
       const uploadData = await uploadResponse.json();
