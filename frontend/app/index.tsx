@@ -314,6 +314,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginRight: 8,
   },
+  uploadNewButton: {
+    flexDirection: 'row',
+    backgroundColor: 'transparent',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: '#007AFF',
+  },
+  uploadNewButtonText: {
+    color: '#007AFF',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
   actionSection: {
     marginBottom: 32,
   },
@@ -330,6 +347,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 24,
   },
   uploadButtonDisabled: {
     opacity: 0.6,
