@@ -175,11 +175,37 @@ export default function Index() {
               <Text style={styles.continueButtonText}>Продолжить работу</Text>
               <Ionicons name="arrow-forward" size={20} color="#FFF" />
             </TouchableOpacity>
+            
+            {/* Кнопка загрузить новый файл */}
+            <TouchableOpacity
+              style={styles.uploadNewButton}
+              onPress={handleFilePick}
+              disabled={loading}
+            >
+              <Ionicons name="cloud-upload-outline" size={20} color="#007AFF" />
+              <Text style={styles.uploadNewButtonText}>Загрузить новый файл</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.emptyState}>
             <Ionicons name="document-text-outline" size={80} color="#CCC" />
             <Text style={styles.emptyText}>Загрузите файл для начала работы</Text>
+            
+            {/* Кнопка загрузки файла */}
+            <TouchableOpacity
+              style={[styles.uploadButton, loading && styles.uploadButtonDisabled]}
+              onPress={handleFilePick}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#FFF" />
+              ) : (
+                <>
+                  <Ionicons name="cloud-upload-outline" size={24} color="#FFF" />
+                  <Text style={styles.uploadButtonText}>Загрузить Excel файл</Text>
+                </>
+              )}
+            </TouchableOpacity>
           </View>
         )}
 
