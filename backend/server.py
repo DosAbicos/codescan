@@ -264,6 +264,59 @@ async def update_product_barcode(product_id: str, update: ProductUpdate):
     
     return {"success": True, "product": updated_product}
 
+@api_router.get("/load-default")
+async def load_default_file():
+    """Загрузить дефолтный файл sample_file.xls при первом запуске"""
+    try:
+        # Проверяем есть ли уже сессия
+        existing_session = await db.sessions.find_one()
+        if existing_session:
+            return {"success": False, "message": "Сессия уже существует"}
+        
+        # Загружаем sample_file.xls из корня проекта
+        sample_file_path = ROOT_DIR.parent / "sample_file.xls"
+        
+        if not sample_file_path.exists():
+            raise HTTPException(status_code=404, detail="Файл sample_file.xls не найден")
+        
+        # Читаем файл
+        with open(sample_file_path, 'rb') as f:
+            content = f.read()
+        
+        # Конвертируем в base64 для хранения
+        file_base64 = base64.b64encode(content).decode('utf-8')
+        
+        # Парсим файл
+        products = parse_excel_file(content, "sample_file.xls")
+        
+        # Создаем рабочую сессию
+        session = WorkSession(
+            filename="sample_file.xls",
+            original_file_base64=file_base64,
+            total_products=len(products),
+            products_with_barcode=sum(1 for p in products if p.get('barcode'))
+        )
+        
+        # Сохраняем сессию
+        await db.sessions.insert_one(session.dict())
+        
+        # Сохраняем товары с привязкой к сессии
+        for product_data in products:
+            product_data['session_id'] = session.id
+            product = Product(**product_data)
+            await db.products.insert_one(product.dict())
+        
+        return {
+            "success": True,
+            "session_id": session.id,
+            "total_products": len(products),
+            "products_with_barcode": session.products_with_barcode
+        }
+    
+    except Exception as e:
+        logging.error(f"Load default file error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/download")
 async def download_excel():
     """Выгрузить Excel файл с обновленными штрихкодами и количеством"""
