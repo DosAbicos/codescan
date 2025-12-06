@@ -49,12 +49,41 @@ export default function Index() {
       const data = await response.json();
       if (data.session) {
         setSession(data.session);
+      } else {
+        // Если нет сессии, автоматически загружаем дефолтный файл
+        console.log('Нет сессии, загружаем дефолтный файл...');
+        await loadDefaultFile();
       }
     } catch (error) {
       console.error('Ошибка проверки сессии:', error);
       // Не показываем alert при проверке сессии, только логируем
     } finally {
       setCheckingSession(false);
+    }
+  };
+
+  const loadDefaultFile = async () => {
+    try {
+      console.log('Загрузка дефолтного файла...');
+      const response = await fetch(`${BACKEND_URL}/api/load-default`);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Ошибка загрузки дефолтного файла:', errorText);
+        return;
+      }
+      
+      const data = await response.json();
+      console.log('Дефолтный файл загружен:', data);
+      
+      // Обновляем сессию
+      const sessionResponse = await fetch(`${BACKEND_URL}/api/session`);
+      const sessionData = await sessionResponse.json();
+      if (sessionData.session) {
+        setSession(sessionData.session);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки дефолтного файла:', error);
     }
   };
 
