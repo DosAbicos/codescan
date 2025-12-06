@@ -35,13 +35,24 @@ export default function Index() {
 
   const checkExistingSession = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/session`);
+      console.log('Проверка сессии на:', `${BACKEND_URL}/api/session`);
+      const response = await fetch(`${BACKEND_URL}/api/session`, {
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Сервер недоступен (${response.status})`);
+      }
+      
       const data = await response.json();
       if (data.session) {
         setSession(data.session);
       }
     } catch (error) {
       console.error('Ошибка проверки сессии:', error);
+      // Не показываем alert при проверке сессии, только логируем
     } finally {
       setCheckingSession(false);
     }
