@@ -86,6 +86,9 @@ function ScannerPage() {
 
   const applyBarcodeToEditProduct = async (barcode) => {
     try {
+      // Сначала останавливаем сканер
+      await stopScanner();
+      
       // Получаем информацию о редактируемом товаре
       const dataWithBarcode = await getProducts({ has_barcode: true, limit: 10000 });
       const dataWithoutBarcode = await getProducts({ has_barcode: false, limit: 10000 });
@@ -93,8 +96,7 @@ function ScannerPage() {
       const product = allProducts.find(p => p.id === editProductId);
       
       if (!product) {
-        alert('Товар не найден');
-        navigate('/products');
+        navigate('/products', { state: { error: 'Товар не найден' } });
         return;
       }
 
@@ -104,12 +106,10 @@ function ScannerPage() {
         quantity_actual: product.quantity_actual,
       });
 
-      alert(`Штрихкод обновлен!\n${barcode}`);
-      navigate('/products');
+      navigate('/products', { state: { message: `Штрихкод обновлен: ${barcode}` } });
     } catch (error) {
       console.error('Ошибка обновления штрихкода:', error);
-      alert('Не удалось обновить штрихкод');
-      navigate('/products');
+      navigate('/products', { state: { error: 'Не удалось обновить штрихкод' } });
     }
   };
 
