@@ -108,15 +108,23 @@ function ProductsPage() {
     if (!confirm(`Удалить штрихкод у товара "${product.name}"?`)) return;
 
     try {
-      await updateProductBarcode(product.id, {
+      console.log('Удаление штрихкода для товара:', product.id);
+      
+      const response = await updateProductBarcode(product.id, {
         barcode: null,
         quantity_actual: null,
       });
+      
+      console.log('Ответ от сервера:', response);
+      
+      // Перезагружаем список товаров
       await loadAllProducts();
+      
       alert('Штрихкод удален!');
     } catch (error) {
       console.error('Ошибка удаления:', error);
-      alert('Не удалось удалить штрихкод');
+      console.error('Детали ошибки:', error.response?.data || error.message);
+      alert(`Не удалось удалить штрихкод: ${error.response?.data?.detail || error.message}`);
     }
   };
 
