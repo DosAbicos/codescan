@@ -109,10 +109,12 @@ function ProductsPage() {
 
     try {
       console.log('Удаление штрихкода для товара:', product.id);
+      console.log('Текущий штрихкод:', product.barcode);
       
+      // Отправляем запрос на удаление
       const response = await updateProductBarcode(product.id, {
         barcode: null,
-        quantity_actual: null,
+        quantity_actual: product.quantity_warehouse, // Сохраняем количество склада
       });
       
       console.log('Ответ от сервера:', response);
@@ -120,11 +122,15 @@ function ProductsPage() {
       // Перезагружаем список товаров
       await loadAllProducts();
       
-      alert('Штрихкод удален!');
+      // БЕЗ ALERT - просто молча обновляем список
     } catch (error) {
       console.error('Ошибка удаления:', error);
-      console.error('Детали ошибки:', error.response?.data || error.message);
-      alert(`Не удалось удалить штрихкод: ${error.response?.data?.detail || error.message}`);
+      console.error('Полная ошибка:', JSON.stringify(error, null, 2));
+      if (error.response) {
+        console.error('Response status:', error.response.status);
+        console.error('Response data:', error.response.data);
+      }
+      alert(`Ошибка: ${error.response?.data?.detail || error.message}`);
     }
   };
 
