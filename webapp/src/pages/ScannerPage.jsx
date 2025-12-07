@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Html5Qrcode } from 'html5-qrcode';
-import { getProducts, updateProductBarcode } from '../utils/api';
+import { localData } from '../utils/localData';
 import './ScannerPage.css';
 
 function ScannerPage() {
