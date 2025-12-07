@@ -132,10 +132,16 @@ function ScannerPage() {
 
   const handleManualSubmit = () => {
     if (manualBarcode.trim()) {
-      setScannedBarcode(manualBarcode.trim());
+      const barcode = manualBarcode.trim();
+      setScannedBarcode(barcode);
       setShowManualInput(false);
       setManualBarcode('');
-      setShowProductSelector(true);
+      
+      if (isEditMode) {
+        applyBarcodeToEditProduct(barcode);
+      } else {
+        setShowProductSelector(true);
+      }
     }
   };
 
