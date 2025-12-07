@@ -25,12 +25,10 @@ function ProductsPage() {
   }, [activeTab, allProducts]);
 
   useEffect(() => {
-    // Показываем сообщение если пришло из scanner
-    if (location.state?.message) {
-      setTimeout(() => alert(location.state.message), 100);
-    }
-    if (location.state?.error) {
-      setTimeout(() => alert(location.state.error), 100);
+    // Больше НЕ показываем alert - просто обновляем список
+    // Молча перезагружаем данные
+    if (location.state?.message || location.state?.error) {
+      loadAllProducts();
     }
   }, [location.state]);
 
