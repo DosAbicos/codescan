@@ -15,6 +15,7 @@ function ProductsPage() {
   const [editingProduct, setEditingProduct] = useState(null);
   const [editQuantity, setEditQuantity] = useState('');
   const [editBarcode, setEditBarcode] = useState('');
+  const [alertShown, setAlertShown] = useState(false);
 
   useEffect(() => {
     loadAllProducts();
