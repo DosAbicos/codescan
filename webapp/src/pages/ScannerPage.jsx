@@ -6,6 +6,10 @@ import './ScannerPage.css';
 
 function ScannerPage() {
   const navigate = useNavigate();
+  const searchParams = new URLSearchParams(window.location.search);
+  const editProductId = searchParams.get('editProductId');
+  const isEditMode = !!editProductId;
+  
   const [isScanning, setIsScanning] = useState(false);
   const [scannedBarcode, setScannedBarcode] = useState(null);
   const [manualBarcode, setManualBarcode] = useState('');
