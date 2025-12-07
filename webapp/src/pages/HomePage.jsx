@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getSession, loadDefaultFile, uploadFile } from '../utils/api';
+import { localData } from '../utils/localData';
 import './HomePage.css';
 
 function HomePage() {
