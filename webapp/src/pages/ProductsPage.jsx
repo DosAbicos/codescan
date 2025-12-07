@@ -26,27 +26,14 @@ function ProductsPage() {
   }, [activeTab, allProducts]);
 
   useEffect(() => {
-    // Показываем alert ОДИН РАЗ используя флаг
-    if ((location.state?.message || location.state?.error) && !alertShown) {
-      setAlertShown(true);
-      
-      const msg = location.state?.message || location.state?.error;
-      
-      // Показываем сообщение
-      setTimeout(() => {
-        alert(msg);
-        // После закрытия alert перезагружаем список
-        loadAllProducts();
-        // Очищаем state через navigate replace
-        navigate(location.pathname, { replace: true, state: {} });
-      }, 100);
+    // Больше НЕ показываем alert - просто перезагружаем список
+    if (location.state?.message || location.state?.error) {
+      // Просто перезагружаем данные без alert
+      loadAllProducts();
+      // Очищаем state
+      navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location.state, alertShown]);
-
-  // Сбрасываем флаг при изменении pathname (переходе на другую страницу)
-  useEffect(() => {
-    setAlertShown(false);
-  }, [location.pathname]);
+  }, [location.state]);
 
   const loadAllProducts = async () => {
     try {
