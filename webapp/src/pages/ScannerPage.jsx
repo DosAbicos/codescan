@@ -119,6 +119,21 @@ function ScannerPage() {
     }
   };
 
+  useEffect(() => {
+    startScanner();
+    return () => {
+      stopScanner();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (searchQuery.length > 0) {
+      searchProducts();
+    } else {
+      setProducts([]); // Очищаем список когда поиск пустой
+    }
+  }, [searchQuery]);
+
   const handleManualSubmit = () => {
     if (manualBarcode.trim()) {
       const barcode = manualBarcode.trim();
