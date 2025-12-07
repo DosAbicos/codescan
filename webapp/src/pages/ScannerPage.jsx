@@ -122,12 +122,13 @@ function ScannerPage() {
 
   const searchProducts = async () => {
     try {
-      const data = await getProducts({
-        has_barcode: false,
-        search: searchQuery,
-        limit: 50,
-      });
-      setProducts(data.products || []);
+      await localData.init();
+      const allProducts = await localData.getAllProducts();
+      const filtered = allProducts
+        .filter(p => !p.barcode)
+        .filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
+        .slice(0, 50);
+      setProducts(filtered);
     } catch (error) {
       console.error('Ошибка поиска:', error);
     }
