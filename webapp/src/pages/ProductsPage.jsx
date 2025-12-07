@@ -67,8 +67,47 @@ function ProductsPage() {
     }
   };
 
-  const productsWithoutBarcode = products.filter(p => !p.barcode).length;
-  const productsWithBarcode = products.filter(p => p.barcode).length;
+  const productsWithoutBarcode = allProducts.filter(p => !p.barcode).length;
+  const productsWithBarcode = allProducts.filter(p => p.barcode).length;
+
+  const handleEdit = (product) => {
+    setEditingProduct(product);
+    setEditQuantity(product.quantity_actual?.toString() || '');
+    setEditBarcode(product.barcode || '');
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingProduct) return;
+
+    try {
+      await updateProductBarcode(editingProduct.id, {
+        barcode: editBarcode,
+        quantity_actual: editQuantity ? parseFloat(editQuantity) : null,
+      });
+      setEditingProduct(null);
+      await loadAllProducts();
+      alert('Товар обновлен!');
+    } catch (error) {
+      console.error('Ошибка обновления:', error);
+      alert('Не удалось обновить товар');
+    }
+  };
+
+  const handleDelete = async (product) => {
+    if (!confirm(`Удалить штрихкод у товара "${product.name}"?`)) return;
+
+    try {
+      await updateProductBarcode(product.id, {
+        barcode: null,
+        quantity_actual: null,
+      });
+      await loadAllProducts();
+      alert('Штрихкод удален!');
+    } catch (error) {
+      console.error('Ошибка удаления:', error);
+      alert('Не удалось удалить штрихкод');
+    }
+  };
 
   return (
     <div className="products-container">
