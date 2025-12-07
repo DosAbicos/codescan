@@ -75,7 +75,42 @@ function ScannerPage() {
     
     setScannedBarcode(decodedText);
     stopScanner();
-    setShowProductSelector(true);
+    
+    if (isEditMode) {
+      // Режим редактирования - сразу обновляем товар и возвращаемся
+      applyBarcodeToEditProduct(decodedText);
+    } else {
+      setShowProductSelector(true);
+    }
+  };
+
+  const applyBarcodeToEditProduct = async (barcode) => {
+    try {
+      // Получаем информацию о редактируемом товаре
+      const dataWithBarcode = await getProducts({ has_barcode: true, limit: 10000 });
+      const dataWithoutBarcode = await getProducts({ has_barcode: false, limit: 10000 });
+      const allProducts = [...(dataWithBarcode.products || []), ...(dataWithoutBarcode.products || [])];
+      const product = allProducts.find(p => p.id === editProductId);
+      
+      if (!product) {
+        alert('Товар не найден');
+        navigate('/products');
+        return;
+      }
+
+      // Обновляем штрихкод
+      await updateProductBarcode(editProductId, {
+        barcode: barcode,
+        quantity_actual: product.quantity_actual,
+      });
+
+      alert(`Штрихкод обновлен!\n${barcode}`);
+      navigate('/products');
+    } catch (error) {
+      console.error('Ошибка обновления штрихкода:', error);
+      alert('Не удалось обновить штрихкод');
+      navigate('/products');
+    }
   };
 
   const onScanError = (err) => {
