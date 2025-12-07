@@ -213,6 +213,66 @@ function ProductsPage() {
             📷 Сканировать штрихкод
           </button>
         )}
+
+        {editingProduct && (
+          <div className="modal">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h2>Редактировать товар</h2>
+                <button 
+                  className="close-button"
+                  onClick={() => setEditingProduct(null)}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="edit-product-info">
+                <p className="edit-product-name">{editingProduct.name}</p>
+                <p className="edit-product-warehouse">
+                  На складе: {editingProduct.quantity_warehouse || 0}
+                </p>
+              </div>
+
+              <div className="input-group">
+                <label>Штрихкод:</label>
+                <input
+                  className="input"
+                  type="text"
+                  placeholder="Введите штрихкод"
+                  value={editBarcode}
+                  onChange={(e) => setEditBarcode(e.target.value)}
+                />
+              </div>
+
+              <div className="input-group">
+                <label>Количество факт:</label>
+                <input
+                  className="input"
+                  type="number"
+                  placeholder="Введите количество"
+                  value={editQuantity}
+                  onChange={(e) => setEditQuantity(e.target.value)}
+                />
+              </div>
+
+              <div className="modal-buttons">
+                <button
+                  className="button button-outline"
+                  onClick={() => setEditingProduct(null)}
+                >
+                  Отмена
+                </button>
+                <button
+                  className="button button-success"
+                  onClick={handleSaveEdit}
+                >
+                  Сохранить
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
