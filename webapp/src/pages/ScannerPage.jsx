@@ -157,19 +157,26 @@ function ScannerPage() {
 
     try {
       const quantityActual = quantity ? parseFloat(quantity) : null;
+      
+      // Сначала останавливаем сканер
+      await stopScanner();
+      
+      // Затем обновляем данные
       await updateProductBarcode(selectedProduct.id, {
         barcode: scannedBarcode,
         quantity_actual: quantityActual,
       });
 
-      alert(`Штрихкод ${scannedBarcode} присвоен товару:\n"${selectedProduct.name}"\n\nКоличество: ${quantityActual || 'не указано'}`);
-      
-      // Останавливаем сканер и возвращаемся на страницу товаров
-      stopScanner();
-      navigate('/products');
+      // Возвращаемся на страницу товаров
+      navigate('/products', { 
+        state: { 
+          message: `Штрихкод ${scannedBarcode} присвоен! Количество: ${quantityActual || 'не указано'}` 
+        } 
+      });
     } catch (error) {
       console.error('Ошибка присвоения штрихкода:', error);
-      alert('Не удалось присвоить штрихкод');
+      await stopScanner();
+      navigate('/products', { state: { error: 'Не удалось присвоить штрихкод' } });
     }
   };
 
