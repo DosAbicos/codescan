@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { getProducts, downloadExcel } from '../utils/api';
+import { getProducts, downloadExcel, updateProductBarcode } from '../utils/api';
 import './ProductsPage.css';
 
 function ProductsPage() {
