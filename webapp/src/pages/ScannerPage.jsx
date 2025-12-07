@@ -23,21 +23,6 @@ function ScannerPage() {
   const scannerRef = useRef(null);
   const html5QrcodeRef = useRef(null);
 
-  useEffect(() => {
-    startScanner();
-    return () => {
-      stopScanner();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (searchQuery.length > 0) {
-      searchProducts();
-    } else {
-      setProducts([]); // Очищаем список когда поиск пустой
-    }
-  }, [searchQuery]);
-
   const startScanner = async () => {
     try {
       const html5Qrcode = new Html5Qrcode('scanner-container');
