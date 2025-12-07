@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { getProducts, downloadExcel, updateProductBarcode } from '../utils/api';
+import { localData } from '../utils/localData';
 import './ProductsPage.css';
 
 function ProductsPage() {
@@ -25,11 +25,8 @@ function ProductsPage() {
   }, [activeTab, allProducts]);
 
   useEffect(() => {
-    // Больше НЕ показываем alert - просто перезагружаем список
     if (location.state?.message || location.state?.error) {
-      // Просто перезагружаем данные без alert
       loadAllProducts();
-      // Очищаем state
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location.state]);
@@ -37,9 +34,8 @@ function ProductsPage() {
   const loadAllProducts = async () => {
     try {
       setLoading(true);
-      const dataWithBarcode = await getProducts({ has_barcode: true, limit: 10000 });
-      const dataWithoutBarcode = await getProducts({ has_barcode: false, limit: 10000 });
-      const all = [...(dataWithBarcode.products || []), ...(dataWithoutBarcode.products || [])];
+      await localData.init();
+      const all = await localData.getAllProducts();
       setAllProducts(all);
     } catch (error) {
       console.error('Ошибка загрузки товаров:', error);
@@ -52,30 +48,6 @@ function ProductsPage() {
     const hasBarcode = activeTab === 'with_barcode';
     const filtered = allProducts.filter(p => hasBarcode ? p.barcode : !p.barcode);
     setProducts(filtered);
-  };
-
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleDownload = async () => {
-    try {
-      setDownloading(true);
-      const blob = await downloadExcel();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'updated_products.xls';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Ошибка скачивания:', error);
-      alert('Не удалось скачать файл');
-    } finally {
-      setDownloading(false);
-    }
   };
 
   const productsWithoutBarcode = allProducts.filter(p => !p.barcode).length;
@@ -91,13 +63,20 @@ function ProductsPage() {
     if (!editingProduct) return;
 
     try {
-      await updateProductBarcode(editingProduct.id, {
+      await localData.updateProduct(editingProduct.id, {
         barcode: editBarcode,
         quantity_actual: editQuantity ? parseFloat(editQuantity) : null,
       });
+      
       setEditingProduct(null);
       await loadAllProducts();
-      alert('Товар обновлен!');
+      
+      const session = await localData.getSession();
+      if (session) {
+        const all = await localData.getAllProducts();
+        session.products_with_barcode = all.filter(p => p.barcode).length;
+        await localData.saveSession(session);
+      }
     } catch (error) {
       console.error('Ошибка обновления:', error);
       alert('Не удалось обновить товар');
@@ -108,31 +87,40 @@ function ProductsPage() {
     if (!confirm(`Удалить штрихкод у товара "${product.name}"?`)) return;
 
     try {
-      console.log('Удаление штрихкода для товара:', product.id);
-      console.log('Текущий штрихкод:', product.barcode);
-      
-      // Отправляем запрос на удаление
-      const response = await updateProductBarcode(product.id, {
+      await localData.updateProduct(product.id, {
         barcode: null,
-        quantity_actual: product.quantity_warehouse, // Сохраняем количество склада
+        quantity_actual: null,
       });
-      
-      console.log('Ответ от сервера:', response);
-      
-      // Перезагружаем список товаров
       await loadAllProducts();
       
-      // БЕЗ ALERT - просто молча обновляем список
+      const session = await localData.getSession();
+      if (session) {
+        const all = await localData.getAllProducts();
+        session.products_with_barcode = all.filter(p => p.barcode).length;
+        await localData.saveSession(session);
+      }
     } catch (error) {
       console.error('Ошибка удаления:', error);
-      console.error('Полная ошибка:', JSON.stringify(error, null, 2));
-      if (error.response) {
-        console.error('Response status:', error.response.status);
-        console.error('Response data:', error.response.data);
-      }
-      alert(`Ошибка: ${error.response?.data?.detail || error.message}`);
+      alert('Не удалось удалить штрихкод');
     }
   };
+
+  const handleDownload = async () => {
+    try {
+      setDownloading(true);
+      const all = await localData.getAllProducts();
+      await localData.exportToExcel(all);
+    } catch (error) {
+      console.error('Ошибка скачивания:', error);
+      alert('Не удалось скачать файл');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="products-container">
