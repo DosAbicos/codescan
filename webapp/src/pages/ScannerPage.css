@@ -1,10 +1,18 @@
 .scanner-container-wrapper {
   min-height: 100vh;
   background: #000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
 }
 
 .scanner-content {
   position: relative;
+  height: 100%;
+  overflow: hidden;
 }
 
 .scanner-view {
