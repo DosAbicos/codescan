@@ -6,29 +6,41 @@ import './ProductsPage.css';
 function ProductsPage() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('no_barcode');
   const [downloading, setDownloading] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [editQuantity, setEditQuantity] = useState('');
+  const [editBarcode, setEditBarcode] = useState('');
 
   useEffect(() => {
-    loadProducts();
-  }, [activeTab]);
+    loadAllProducts();
+  }, []);
 
-  const loadProducts = async () => {
+  useEffect(() => {
+    filterProducts();
+  }, [activeTab, allProducts]);
+
+  const loadAllProducts = async () => {
     try {
       setLoading(true);
-      const hasBarcode = activeTab === 'with_barcode';
-      const data = await getProducts({ 
-        has_barcode: hasBarcode,
-        limit: 1000 
-      });
-      setProducts(data.products || []);
+      const dataWithBarcode = await getProducts({ has_barcode: true, limit: 10000 });
+      const dataWithoutBarcode = await getProducts({ has_barcode: false, limit: 10000 });
+      const all = [...(dataWithBarcode.products || []), ...(dataWithoutBarcode.products || [])];
+      setAllProducts(all);
     } catch (error) {
       console.error('Ошибка загрузки товаров:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const filterProducts = () => {
+    const hasBarcode = activeTab === 'with_barcode';
+    const filtered = allProducts.filter(p => hasBarcode ? p.barcode : !p.barcode);
+    setProducts(filtered);
   };
 
   const filteredProducts = products.filter(product =>
