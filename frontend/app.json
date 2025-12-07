@@ -43,9 +43,10 @@
         }
       ],
       [
-        "expo-camera",
+        "react-native-vision-camera",
         {
-          "cameraPermission": "Разрешите доступ к камере для сканирования штрихкодов"
+          "cameraPermissionText": "Разрешите доступ к камере для сканирования штрихкодов",
+          "enableCodeScanner": true
         }
       ],
       "expo-font",
