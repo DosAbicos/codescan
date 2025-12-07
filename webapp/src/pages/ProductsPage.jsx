@@ -182,13 +182,21 @@ function ProductsPage() {
                         )}
                       </div>
                     </div>
-                    {activeTab === 'no_barcode' && (
-                      <button
-                        className="scan-button"
-                        onClick={() => navigate('/scanner')}
-                      >
-                        📷 Сканировать
-                      </button>
+                    {activeTab === 'with_barcode' && (
+                      <div className="product-actions">
+                        <button
+                          className="edit-button"
+                          onClick={() => handleEdit(product)}
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          className="delete-button"
+                          onClick={() => handleDelete(product)}
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     )}
                   </div>
                 ))}
