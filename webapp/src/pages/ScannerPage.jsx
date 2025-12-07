@@ -92,9 +92,8 @@ function ScannerPage() {
       await stopScanner();
       
       // Получаем информацию о редактируемом товаре
-      const dataWithBarcode = await getProducts({ has_barcode: true, limit: 10000 });
-      const dataWithoutBarcode = await getProducts({ has_barcode: false, limit: 10000 });
-      const allProducts = [...(dataWithBarcode.products || []), ...(dataWithoutBarcode.products || [])];
+      await localData.init();
+      const allProducts = await localData.getAllProducts();
       const product = allProducts.find(p => p.id === editProductId);
       
       if (!product) {
@@ -103,7 +102,8 @@ function ScannerPage() {
       }
 
       // Обновляем штрихкод
-      await updateProductBarcode(editProductId, {
+      await localData.updateProduct(editProductId, {
+        ...product,
         barcode: barcode,
         quantity_actual: product.quantity_actual,
       });
