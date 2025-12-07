@@ -25,10 +25,26 @@ function ProductsPage() {
   }, [activeTab, allProducts]);
 
   useEffect(() => {
-    // Больше НЕ показываем alert - просто обновляем список
-    // Молча перезагружаем данные
-    if (location.state?.message || location.state?.error) {
-      loadAllProducts();
+    // Показываем alert ОДИН РАЗ и очищаем state чтобы не повторялся
+    if (location.state?.message) {
+      const msg = location.state.message;
+      // Очищаем state
+      window.history.replaceState({}, document.title);
+      // Показываем сообщение
+      setTimeout(() => {
+        alert(msg);
+        loadAllProducts();
+      }, 100);
+    }
+    if (location.state?.error) {
+      const err = location.state.error;
+      // Очищаем state
+      window.history.replaceState({}, document.title);
+      // Показываем ошибку
+      setTimeout(() => {
+        alert(err);
+        loadAllProducts();
+      }, 100);
     }
   }, [location.state]);
 
