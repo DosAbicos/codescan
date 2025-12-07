@@ -236,13 +236,26 @@ function ProductsPage() {
 
               <div className="input-group">
                 <label>Штрихкод:</label>
-                <input
-                  className="input"
-                  type="text"
-                  placeholder="Введите штрихкод"
-                  value={editBarcode}
-                  onChange={(e) => setEditBarcode(e.target.value)}
-                />
+                <div style={{display: 'flex', gap: '8px'}}>
+                  <input
+                    className="input"
+                    type="text"
+                    placeholder="Введите штрихкод"
+                    value={editBarcode}
+                    onChange={(e) => setEditBarcode(e.target.value)}
+                    style={{flex: 1, marginBottom: 0}}
+                  />
+                  <button
+                    className="button button-primary"
+                    onClick={() => {
+                      setEditingProduct(null);
+                      navigate(`/scanner?editProductId=${editingProduct.id}`);
+                    }}
+                    style={{whiteSpace: 'nowrap'}}
+                  >
+                    📷 Сканировать
+                  </button>
+                </div>
               </div>
 
               <div className="input-group">
