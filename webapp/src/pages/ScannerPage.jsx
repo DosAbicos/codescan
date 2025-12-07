@@ -33,6 +33,8 @@ function ScannerPage() {
   useEffect(() => {
     if (searchQuery.length > 0) {
       searchProducts();
+    } else {
+      setProducts([]); // Очищаем список когда поиск пустой
     }
   }, [searchQuery]);
 
