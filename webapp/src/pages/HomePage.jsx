@@ -15,14 +15,10 @@ function HomePage() {
 
   const checkSession = async () => {
     try {
-      const data = await getSession();
-      if (data.session) {
-        setSession(data.session);
-      } else {
-        // Автоматически загружаем дефолтный файл
-        await loadDefaultFile();
-        const newData = await getSession();
-        setSession(newData.session);
+      await localData.init();
+      const savedSession = await localData.getSession();
+      if (savedSession) {
+        setSession(savedSession);
       }
     } catch (error) {
       console.error('Ошибка загрузки сессии:', error);
@@ -37,9 +33,21 @@ function HomePage() {
 
     try {
       setUploading(true);
-      await uploadFile(file);
-      await checkSession();
-      alert('Файл успешно загружен!');
+      
+      const { filename, products } = await localData.parseExcelFile(file);
+      
+      await localData.saveProducts(products);
+      
+      const newSession = {
+        filename,
+        total_products: products.length,
+        products_with_barcode: products.filter(p => p.barcode).length,
+      };
+      
+      await localData.saveSession(newSession);
+      setSession(newSession);
+      
+      alert(`Файл загружен! ${products.length} товаров`);
     } catch (error) {
       console.error('Ошибка загрузки файла:', error);
       alert('Не удалось загрузить файл');
@@ -67,7 +75,7 @@ function HomePage() {
           <p className="subtitle">Присвоение штрихкодов товарам</p>
         </div>
 
-        {session && (
+        {session ? (
           <div className="card session-card">
             <p className="session-label">Текущая сессия</p>
             <h2 className="session-filename">{session.filename}</h2>
@@ -109,20 +117,36 @@ function HomePage() {
               />
             </label>
           </div>
+        ) : (
+          <div className="card session-card">
+            <p className="session-label">Начните работу</p>
+            <p style={{marginBottom: '20px'}}>Загрузите Excel файл с товарами</p>
+            
+            <label className="button button-success full-width">
+              {uploading ? 'Загрузка...' : '📁 Загрузить Excel файл'}
+              <input 
+                type="file" 
+                accept=".xls,.xlsx" 
+                onChange={handleFileUpload}
+                disabled={uploading}
+                style={{display: 'none'}}
+              />
+            </label>
+          </div>
         )}
 
         <div className="features">
           <div className="feature-item">
             <span className="feature-icon">✓</span>
-            <span>Поддержка .xls файлов</span>
+            <span>Поддержка .xls и .xlsx файлов</span>
           </div>
           <div className="feature-item">
             <span className="feature-icon">✓</span>
-            <span>Сохранение прогресса</span>
+            <span>Работает полностью в браузере</span>
           </div>
           <div className="feature-item">
             <span className="feature-icon">✓</span>
-            <span>Быстрый поиск товаров</span>
+            <span>Все данные хранятся локально</span>
           </div>
         </div>
       </div>
