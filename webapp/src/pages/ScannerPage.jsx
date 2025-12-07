@@ -96,7 +96,7 @@ function ScannerPage() {
       const product = allProducts.find(p => p.id === editProductId);
       
       if (!product) {
-        navigate('/products', { state: { error: 'Товар не найден' } });
+        navigate('/products');
         return;
       }
 
@@ -106,10 +106,11 @@ function ScannerPage() {
         quantity_actual: product.quantity_actual,
       });
 
-      navigate('/products', { state: { message: `Штрихкод обновлен: ${barcode}` } });
+      // Возвращаемся БЕЗ сообщения - молча
+      navigate('/products');
     } catch (error) {
       console.error('Ошибка обновления штрихкода:', error);
-      navigate('/products', { state: { error: 'Не удалось обновить штрихкод' } });
+      navigate('/products');
     }
   };
 
