@@ -24,6 +24,16 @@ function ProductsPage() {
     filterProducts();
   }, [activeTab, allProducts]);
 
+  useEffect(() => {
+    // Показываем сообщение если пришло из scanner
+    if (location.state?.message) {
+      setTimeout(() => alert(location.state.message), 100);
+    }
+    if (location.state?.error) {
+      setTimeout(() => alert(location.state.error), 100);
+    }
+  }, [location.state]);
+
   const loadAllProducts = async () => {
     try {
       setLoading(true);
