@@ -119,15 +119,9 @@ function ScannerPage() {
 
       alert(`Штрихкод ${scannedBarcode} присвоен товару:\n"${selectedProduct.name}"\n\nКоличество: ${quantityActual || 'не указано'}`);
       
-      // Сброс
-      setScannedBarcode(null);
-      setSelectedProduct(null);
-      setQuantity('');
-      setSearchQuery('');
-      setShowQuantityInput(false);
-      
-      // Перезапуск сканера
-      startScanner();
+      // Останавливаем сканер и возвращаемся на страницу товаров
+      stopScanner();
+      navigate('/products');
     } catch (error) {
       console.error('Ошибка присвоения штрихкода:', error);
       alert('Не удалось присвоить штрихкод');
