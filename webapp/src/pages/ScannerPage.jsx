@@ -166,7 +166,9 @@ function ScannerPage() {
       await stopScanner();
       
       // Затем обновляем данные
-      await updateProductBarcode(selectedProduct.id, {
+      await localData.init();
+      await localData.updateProduct(selectedProduct.id, {
+        ...selectedProduct,
         barcode: scannedBarcode,
         quantity_actual: quantityActual,
       });
