@@ -218,6 +218,8 @@ function ScannerPage() {
                   onClick={() => {
                     setShowProductSelector(false);
                     setScannedBarcode(null);
+                    setSearchQuery(''); // Сбрасываем поиск
+                    setProducts([]); // Очищаем список
                     startScanner();
                   }}
                 >
