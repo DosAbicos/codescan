@@ -26,7 +26,7 @@ npm run dev
 
 ## 📱 Demo
 
-**Preview:** https://table-loader.preview.emergentagent.com
+**Preview:** https://file-display-1.preview.emergentagent.com
 
 ## 📖 Документация
 
