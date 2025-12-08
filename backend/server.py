@@ -381,6 +381,26 @@ async def download_excel():
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/get-sample-file")
+async def get_sample_file():
+    """Скачать файл sample_file.xls для автоматической загрузки при первом визите"""
+    try:
+        # Путь к sample_file.xls
+        sample_file_path = ROOT_DIR.parent / "sample_file.xls"
+        
+        if not sample_file_path.exists():
+            raise HTTPException(status_code=404, detail="Файл sample_file.xls не найден")
+        
+        return FileResponse(
+            sample_file_path,
+            media_type='application/vnd.ms-excel',
+            filename='sample_file.xls'
+        )
+    
+    except Exception as e:
+        logging.error(f"Get sample file error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Include the router in the main app
 app.include_router(api_router)
 
