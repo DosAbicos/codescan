@@ -48,4 +48,11 @@ export const downloadExcel = async () => {
   return response.data;
 };
 
+export const getSampleFile = async () => {
+  const response = await api.get('/get-sample-file', {
+    responseType: 'blob',
+  });
+  return response.data;
+};
+
 export default api;
