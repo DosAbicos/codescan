@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { localData } from '../utils/localData';
+import { getSampleFile } from '../utils/api';
 import './HomePage.css';
 
 function HomePage() {
@@ -19,11 +20,47 @@ function HomePage() {
       const savedSession = await localData.getSession();
       if (savedSession) {
         setSession(savedSession);
+      } else {
+        // Если сессии нет, автоматически загружаем sample_file.xls
+        await loadDefaultSampleFile();
       }
     } catch (error) {
       console.error('Ошибка загрузки сессии:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadDefaultSampleFile = async () => {
+    try {
+      console.log('Загрузка sample_file.xls...');
+      
+      // Получаем файл с сервера
+      const blob = await getSampleFile();
+      
+      // Создаем File объект из blob
+      const file = new File([blob], 'sample_file.xls', { 
+        type: 'application/vnd.ms-excel' 
+      });
+      
+      // Парсим и сохраняем файл
+      const { filename, products } = await localData.parseExcelFile(file);
+      
+      await localData.saveProducts(products);
+      
+      const newSession = {
+        filename,
+        total_products: products.length,
+        products_with_barcode: products.filter(p => p.barcode).length,
+      };
+      
+      await localData.saveSession(newSession);
+      setSession(newSession);
+      
+      console.log(`sample_file.xls успешно загружен! ${products.length} товаров`);
+    } catch (error) {
+      console.error('Ошибка автоматической загрузки sample_file.xls:', error);
+      // Не показываем ошибку пользователю, просто оставляем возможность загрузить вручную
     }
   };
 
