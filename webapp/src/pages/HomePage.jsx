@@ -35,7 +35,7 @@ function HomePage() {
     try {
       console.log('Загрузка sample_file.xls...');
       
-      // Получаем файл с сервера
+      // Получаем файл с сервера в виде blob
       const blob = await getSampleFile();
       
       // Создаем File объект из blob
@@ -43,21 +43,90 @@ function HomePage() {
         type: 'application/vnd.ms-excel' 
       });
       
-      // Парсим и сохраняем файл
-      const { filename, products } = await localData.parseExcelFile(file);
+      // Используем упрощенный парсинг для быстрой загрузки
+      // XLSX парсинг работает для любого xls/xlsx файла
+      const reader = new FileReader();
       
-      await localData.saveProducts(products);
-      
-      const newSession = {
-        filename,
-        total_products: products.length,
-        products_with_barcode: products.filter(p => p.barcode).length,
+      reader.onload = async (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const XLSX = await import('xlsx');
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+          // Парсим данные - начинаем с 8-й строки, где начинаются товары
+          const products = [];
+          let idx = 8;
+          let productId = 1;
+          
+          while (idx < jsonData.length - 1) {
+            const row = jsonData[idx];
+            const name = row[0];
+            
+            // Пропускаем пустые строки
+            if (!name || String(name).trim() === '') {
+              idx++;
+              continue;
+            }
+            
+            const nameStr = String(name).trim();
+            
+            // Пропускаем заголовки
+            if (nameStr === 'Номенклатура' || nameStr === 'Счет' || nameStr === 'Итого') {
+              idx++;
+              continue;
+            }
+            
+            // Проверяем следующую строку на "Кол."
+            const nextRow = jsonData[idx + 1];
+            if (nextRow && nextRow[1] && String(nextRow[1]).trim() === 'Кол.') {
+              // Проверяем, является ли это кодом номенклатуры
+              const isCode = nameStr.replace(/\s/g, '').match(/^\d+$/);
+              
+              if (isCode) {
+                // Пропускаем коды номенклатуры
+                idx += 2;
+                continue;
+              }
+              
+              // Это товар
+              const barcode = row[8] || null;
+              const quantityWarehouse = nextRow[2] || 0;
+              
+              products.push({
+                id: `product-${productId++}`,
+                name: nameStr,
+                barcode: barcode ? String(barcode).trim() : null,
+                quantity_warehouse: quantityWarehouse,
+                quantity_actual: null,
+              });
+              
+              idx += 2;
+            } else {
+              idx++;
+            }
+          }
+
+          // Сохраняем в IndexedDB
+          await localData.saveProducts(products);
+          
+          const newSession = {
+            filename: 'sample_file.xls',
+            total_products: products.length,
+            products_with_barcode: products.filter(p => p.barcode).length,
+          };
+          
+          await localData.saveSession(newSession);
+          setSession(newSession);
+          
+          console.log(`sample_file.xls успешно загружен! ${products.length} товаров`);
+        } catch (error) {
+          console.error('Ошибка парсинга файла:', error);
+        }
       };
       
-      await localData.saveSession(newSession);
-      setSession(newSession);
-      
-      console.log(`sample_file.xls успешно загружен! ${products.length} товаров`);
+      reader.readAsArrayBuffer(file);
     } catch (error) {
       console.error('Ошибка автоматической загрузки sample_file.xls:', error);
       // Не показываем ошибку пользователю, просто оставляем возможность загрузить вручную
